@@ -180,42 +180,60 @@ def render_card(item: dict):
 
 def plot_timeline(df: pd.DataFrame):
     """
-    Cleaner horizontal timeline:
-    - A single horizontal line
-    - Events on the line
-    - Labels alternate top/bottom to reduce crowding
+    Vertical arrow timeline:
+    - Left: Year (date)
+    - Right: Event label
+    - Title: "My Experience Progress"
     """
     df = df.sort_values("Year").reset_index(drop=True)
 
     fig, ax = plt.subplots()
 
-    # timeline baseline
-    ax.hlines(y=0, xmin=df["Year"].min() - 0.2, xmax=df["Year"].max() + 0.2)
+    # Y positions from top to bottom
+    y_positions = list(range(len(df)))[::-1]  # top = most recent if you want; keep as is
+    x_line = 0
 
-    # event markers
-    ax.scatter(df["Year"], [0] * len(df))
+    # Draw vertical arrow (timeline spine)
+    ax.annotate(
+        "",
+        xy=(x_line, min(y_positions) - 0.6),
+        xytext=(x_line, max(y_positions) + 0.6),
+        arrowprops=dict(arrowstyle="->", lw=2),
+    )
 
-    # alternating labels (top / bottom)
-    for i, row in df.iterrows():
-        y_offset = 18 if i % 2 == 0 else -22  # top vs bottom
-        va = "bottom" if i % 2 == 0 else "top"
-        ax.annotate(
-            row["Label"],
-            (row["Year"], 0),
-            textcoords="offset points",
-            xytext=(0, y_offset),
-            ha="center",
-            va=va,
-            fontsize=9,
+    # Plot event markers and labels
+    for y, (_, row) in zip(y_positions, df.iterrows()):
+        # marker
+        ax.scatter([x_line], [y], s=80)
+
+        # left date
+        ax.text(
+            x_line - 0.25,
+            y,
+            f"{row['Year']:.1f}".rstrip("0").rstrip("."),
+            ha="right",
+            va="center",
+            fontsize=10,
         )
 
-    ax.set_yticks([])
-    ax.set_xlabel("Year")
-    ax.set_title("Career Timeline")
-    ax.grid(True, axis="x", linestyle="--", alpha=0.35)
+        # right event label
+        ax.text(
+            x_line + 0.25,
+            y,
+            row["Label"],
+            ha="left",
+            va="center",
+            fontsize=10,
+        )
 
-    # give extra vertical room for labels
-    ax.set_ylim(-1, 1)
+    # Styling
+    ax.set_title("My Experience Progress")
+    ax.set_xlim(-1.2, 1.2)
+    ax.set_ylim(min(y_positions) - 1, max(y_positions) + 1)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
     st.pyplot(fig)
 
