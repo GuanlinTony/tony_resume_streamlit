@@ -300,15 +300,16 @@ if section == "Overview":
 
     st.markdown('<div class="section-gap"></div>', unsafe_allow_html=True)
 
-    left, right = st.columns([2, 1], gap="large")
-    with left:
-        st.subheader("Career Timeline")
-        plot_timeline(timeline_events)
+    # ---- Full-width timeline (top) ----
+    st.subheader("Career Timeline")
+    plot_timeline(timeline_events)
 
-    with right:
-        st.subheader("Skills Coverage")
-        st.caption("A compact view of how your skills cluster across programming, analytics, and tools.")
-        plot_skill_pie(skills_df)
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ---- Pie chart below ----
+    st.subheader("Skills Coverage")
+    st.caption("A compact view of how your skills cluster across programming, analytics, and tools.")
+    plot_skill_pie(skills_df)
 
     st.subheader("Core Focus Areas")
     focus = [
