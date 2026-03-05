@@ -179,27 +179,44 @@ def render_card(item: dict):
     )
 
 def plot_timeline(df: pd.DataFrame):
+    """
+    Cleaner horizontal timeline:
+    - A single horizontal line
+    - Events on the line
+    - Labels alternate top/bottom to reduce crowding
+    """
     df = df.sort_values("Year").reset_index(drop=True)
-    y = [1] * len(df)
 
     fig, ax = plt.subplots()
-    ax.scatter(df["Year"], y)
 
+    # timeline baseline
+    ax.hlines(y=0, xmin=df["Year"].min() - 0.2, xmax=df["Year"].max() + 0.2)
+
+    # event markers
+    ax.scatter(df["Year"], [0] * len(df))
+
+    # alternating labels (top / bottom)
     for i, row in df.iterrows():
+        y_offset = 18 if i % 2 == 0 else -22  # top vs bottom
+        va = "bottom" if i % 2 == 0 else "top"
         ax.annotate(
             row["Label"],
-            (row["Year"], 1),
+            (row["Year"], 0),
             textcoords="offset points",
-            xytext=(0, 10 if i % 2 == 0 else -18),
+            xytext=(0, y_offset),
             ha="center",
+            va=va,
             fontsize=9,
         )
 
     ax.set_yticks([])
     ax.set_xlabel("Year")
     ax.set_title("Career Timeline")
-    ax.set_ylim(0.6, 1.4)
     ax.grid(True, axis="x", linestyle="--", alpha=0.35)
+
+    # give extra vertical room for labels
+    ax.set_ylim(-1, 1)
+
     st.pyplot(fig)
 
 def plot_skill_bars(df: pd.DataFrame):
